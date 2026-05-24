@@ -1,6 +1,7 @@
 package identity.identityservice.controller;
 
 import identity.identityservice.dto.AuthResponse;
+import identity.identityservice.dto.RefreshTokenRequest;
 import identity.identityservice.entity.RefreshToken;
 import identity.identityservice.entity.User;
 import identity.identityservice.service.RefreshTokenService;
@@ -11,7 +12,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -33,6 +39,15 @@ public class AuthController {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
                 .build());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshValidToken(@Valid @RequestBody RefreshTokenRequest request) {
+
+        // Gọi Service thực hiện luân chuyển token và nhận lại kết quả cặp token mới
+        AuthResponse response = refreshTokenService.rotateRefreshToken(request.getRefreshToken());
+
+        return ResponseEntity.ok(response);
     }
 
 
